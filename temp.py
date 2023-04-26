@@ -21,25 +21,14 @@ chart = alt.Chart(melted_data).mark_bar().encode(
     x='variable:N',
     y='sum(value):Q',
     color=alt.Color('category:N'),
-    opacity=alt.condition(category_selection, alt.value(1), alt.value(0.1))
+    opacity=alt.condition(category_selection, alt.value(1), alt.value(0.1)),
+    tooltip=[alt.Tooltip('variable:N', title='Variable'), alt.Tooltip('value:Q', title='Value')]
 ).add_selection(
     category_selection
 ).properties(
     width=800,
-    height=400
+    height=400,
 )
-
-# Add the legend
-legend = alt.Chart(melted_data).mark_rect().encode(
-    y=alt.Y('category:N', axis=alt.Axis(orient='right')),
-    color=alt.Color('category:N'),
-    opacity=alt.condition(category_selection, alt.OpacityValue(1), alt.OpacityValue(0.1))
-).add_selection(
-    category_selection
-)
-
-# Combine the chart and the legend
-combined_chart = chart | legend
 
 # Display the chart in Streamlit
-st.altair_chart(combined_chart, use_container_width=True)
+st.altair_chart(chart, use_container_width=True)

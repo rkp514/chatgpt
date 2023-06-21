@@ -1,36 +1,27 @@
-import streamlit as st
 import pandas as pd
-import plotly.graph_objects as go
 
-# Sample data
-data = pd.DataFrame({
-    'Category': ['A', 'B', 'C'],
-    'Value': [10, 20, 30],
-    'Subcategory': ['A1', 'B1', 'C1'],
-    'Subvalue': [5, 15, 25]
-})
+# Read the Excel file into a pandas DataFrame
+df = pd.read_excel('your_file.xlsx')
 
-# Render the initial pie chart
-def render_chart(df):
-    fig = go.Figure(data=[go.Pie(labels=df['Category'], values=df['Value'])])
-    st.plotly_chart(fig)
+# Create an empty list to store the normalized rows
+normalized_rows = []
 
-# Render the subcategory pie chart
-def render_subchart(df):
-    fig = go.Figure(data=[go.Pie(labels=df['Subcategory'], values=df['Subvalue'])])
-    st.plotly_chart(fig)
+# Iterate over each row in the DataFrame
+for index, row in df.iterrows():
+    databases = str(row['database_names']).split(',')  # Split the database names by comma
+    
+    # If there is only one database, add the row as it is
+    if len(databases) == 1:
+        normalized_rows.append(row)
+    else:
+        # Create a new row for each individual database
+        for db in databases:
+            new_row = row.copy()
+            new_row['database_names'] = db.strip()  # Remove leading/trailing whitespaces
+            normalized_rows.append(new_row)
 
-# Main app
-def main():
-    st.title("Pie Chart Drilldown")
+# Create a new DataFrame from the normalized rows
+normalized_df = pd.DataFrame(normalized_rows)
 
-    # Render the initial pie chart
-    render_chart(data)
-
-    # Check if the user wants to drill down
-    if st.button("Drill down"):
-        # Render the subcategory pie chart
-        render_subchart(data)
-
-if __name__ == '__main__':
-    main()
+# Reset the index of the DataFrame
+normalized_df.reset_index(drop=True, inplace=True)
